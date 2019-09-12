@@ -1,0 +1,43 @@
+!# python3
+# monitorHomepage.py checks www.upce.cz/en for changes in its content
+
+import requests, logging
+from bs4 import BeautifulSoup
+
+logging.basicConfig(filename = 'monitorHomepage.log',level = logging.DEBUG, format = %(asctime)s - %(levelname)s - %(message)s)
+
+resHomepage = requests.get('http://www.upce.cz/en') #scrape homepage
+resHomepage.raise_for_status() #check if download was successful
+
+soupHomepage = BeautifulSoup(resHomepage.text, 'html.parser') #parse homepage
+
+#Create list of various titles found on homepage, css style has banner_subtitle, banner_title and news_title classes
+soupSubtitles = soupHomepage.select('.banner_subtitle a')
+soupNewsTitles = soupHomepage.select('.news_title a')
+soupBannerTitles = soupHomepage.select('.banner_title a')
+
+subtitles = [] 
+for subtitle in soupSubtitles:
+	subtitles.append(subtitle.get_text())
+
+newsTitles = []
+for newsTitle in soupNewsTitles:
+	newsTitles.append(newsTitle.get_text())
+
+bannerTitles = []
+for bannerTitle in soupBannerTitles:
+	bannerTitles.append(bannerTitle.get_text())
+
+logging.debug('I have found the following titles: %s %s %s' % (bannerTitles, newsTitles, subtitles))
+
+#TODO:read file with title from previous check
+#TODO:check current titles with previous titles
+#TODO:log the findings
+
+#FINISH: overwrite previous titles with current titles for next check
+dataFile = open('monitorHomepage.txt', 'w')
+dataFile.write('Titles from ' + time.strftime('%d/%m/%Y %H:%M:%S'))
+dataFile.write('\n')
+
+
+dataFile.close()
