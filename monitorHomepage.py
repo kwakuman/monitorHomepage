@@ -1,10 +1,10 @@
-!# python3
+#!/usr/bin/python3
 # monitorHomepage.py checks www.upce.cz/en for changes in its content
 
-import requests, logging
+import requests, logging, shelve
 from bs4 import BeautifulSoup
 
-logging.basicConfig(filename = 'monitorHomepage.log',level = logging.DEBUG, format = %(asctime)s - %(levelname)s - %(message)s)
+logging.basicConfig(filename = 'monitorHomepage.log',level = logging.DEBUG, format ='%(asctime)s - %(levelname)s - %(message)s')
 
 resHomepage = requests.get('http://www.upce.cz/en') #scrape homepage
 resHomepage.raise_for_status() #check if download was successful
@@ -31,13 +31,19 @@ for bannerTitle in soupBannerTitles:
 logging.debug('I have found the following titles: {} {} {}'.format(bannerTitles, newsTitles, subtitles))
 
 #TODO:read file with title from previous check
+with shelve.open('previousCheck.db') as storage:
+	try:
+		previousBannerTitles = storage['bannerTitles']
+		previousNewsTitles = storage['newsTitles']
+		previousSubtitles = storage['subtitles']
+	except KeyError:
+		logging.debug('One of the variables was not found in previous database')
 #TODO:check current titles with previous titles
-#TODO:log the findings
+#TODO???:log the findings
 
-#FINISH: overwrite previous titles with current titles for next check
-dataFile = open('monitorHomepage.txt', 'w')
-dataFile.write('Titles from ' + time.strftime('%d/%m/%Y %H:%M:%S'))
-dataFile.write('\n')
+#TODO: overwrite previous titles with current titles for next check
+with shelve.open ('previousCheck.db') as storage:
+	storage['bannerTitles'] = bannerTitles
+	storage['newsTitles'] = newsTitles
+	storage['subtitles'] = subtitles
 
-
-dataFile.close()
