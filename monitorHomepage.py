@@ -28,7 +28,7 @@ bannerTitles = []
 for bannerTitle in soupBannerTitles:
 	bannerTitles.append(bannerTitle.get_text())
 
-logging.debug('I have found the following titles: %s %s %s' % (bannerTitles, newsTitles, subtitles))
+logging.debug('I have found the following titles: {} {} {}'.format(bannerTitles, newsTitles, subtitles))
 
 #TODO:read file with title from previous check
 #TODO:check current titles with previous titles
