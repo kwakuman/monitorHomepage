@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # monitorHomepage.py checks www.upce.cz/en for changes in its content
 
-import requests, logging, shelve
+import requests, logging, shelve, os
 from bs4 import BeautifulSoup
 
 logging.basicConfig(filename = 'monitorHomepage.log',level = logging.DEBUG, format ='%(asctime)s - %(levelname)s - %(message)s')
@@ -30,7 +30,9 @@ for bannerTitle in soupBannerTitles:
 
 logging.debug('I have found the following titles: {} {} {}'.format(bannerTitles, newsTitles, subtitles))
 
-#TODO:read file with title from previous check
+#read file with title from previous check if it exists
+if os.path.exists('previousCheck.db') == False:
+	logging.debug('Data from previous file not found')
 with shelve.open('previousCheck.db') as storage:
 	try:
 		previousBannerTitles = storage['bannerTitles']
@@ -38,10 +40,28 @@ with shelve.open('previousCheck.db') as storage:
 		previousSubtitles = storage['subtitles']
 	except KeyError:
 		logging.debug('One of the variables was not found in previous database')
-#TODO:check current titles with previous titles
-#TODO???:log the findings
 
-#TODO: overwrite previous titles with current titles for next check
+#TODO:check current titles with previous titles
+for title in previousBannerTitles:
+	if title in bannerTitles:
+		print('No changes in banner title')
+	if title not in bannerTitles:
+		print(title + ' has dissapeared')
+
+for title in previousNewsTitles:
+	if title in newsTitles:
+		print('No changes in banner title')
+	if title not in newsTitles:
+		print(title + ' has dissapeared')
+
+for title in previousSubtitles:
+	if title in subtitles:
+		print('No changes in banner title')
+	if title not in subtitles:
+		print(title + ' has dissapeared')
+
+
+#overwrite previous titles with current titles for next check
 with shelve.open ('previousCheck.db') as storage:
 	storage['bannerTitles'] = bannerTitles
 	storage['newsTitles'] = newsTitles
